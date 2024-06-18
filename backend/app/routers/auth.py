@@ -27,7 +27,7 @@ async def login(
             status_code=status.HTTP_403_FORBIDDEN, detail="Invalid credentials"
         )
 
-    access_token = await oauth2.create_access_token(data={"user_id": user.id})
+    access_token = await oauth2.create_access_token(data={"user_guid": str(user.guid)})
     return {"access_token": access_token, "token_type": "bearer"}
 
 
@@ -53,7 +53,7 @@ async def login_google_callback(request: Request, db: Session = Depends(get_db))
         )
 
     access_token = await create_access_token(
-        data={"user_id": user.id}
+        data={"user_guid": str(user.guid)}
     )
     print('\n' + access_token + '\n')
     return {"access_token": access_token, "token_type": "bearer"}

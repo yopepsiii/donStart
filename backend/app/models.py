@@ -1,56 +1,54 @@
-import datetime
+from datetime import datetime
+import uuid
 from typing import List
 
-from sqlalchemy import ForeignKey, func, Table
-from sqlalchemy.orm import relationship, declarative_base, mapped_column, Mapped
-from sqlalchemy.sql.sqltypes import DateTime
+from sqlalchemy import func, ForeignKey, types, text
+from sqlalchemy.orm import declarative_base, mapped_column, Mapped, relationship
 
 Base = declarative_base()
 
+
+# сделать систему лайков как в курсе, так быстрее будет
 class User(Base):
-    __tablename__: str = "Users"
+    __tablename__ = 'Users'
 
-    id: Mapped[int] = mapped_column(primary_key=True)
+    guid: Mapped[uuid.UUID] = mapped_column(types.Uuid, server_default=text("gen_random_uuid()"), primary_key=True)
     username: Mapped[str] = mapped_column(nullable=False)
+    email: Mapped[str] = mapped_column(unique=True, nullable=False)
     password: Mapped[str] = mapped_column(nullable=False)
-    email: Mapped[str] = mapped_column(nullable=False, unique=True, index=True)
-    created_at: Mapped[datetime.datetime] = mapped_column(
-        DateTime(timezone=True), server_default=func.now()
-    )
-    image: Mapped[str] = mapped_column(server_default='')
-    role: Mapped[str] = mapped_column(server_default='Пользователь')
+    created_at: Mapped[datetime] = mapped_column(nullable=False, server_default=func.now())
+    profile_picture: Mapped[str] = mapped_column(server_default="some picture")
 
-    created_games: Mapped[List["Game"]] = relationship("Game", back_populates="creator")
-
-    liked_games: Mapped[List["Game"]] = relationship(
-        "Game",
-        back_populates="users_that_liked"
-    )
+    roles: Mapped[List["Role"]] = relationship(back_populates="user")
+    created_games: Mapped[List["Game"]] = relationship(back_populates="creator")
 
 
 class Game(Base):
-    __tablename__: str = "Games"
+    __tablename__ = 'Games'
+
+    guid: Mapped[uuid.UUID] = mapped_column(types.Uuid, server_default=text("gen_random_uuid()"), primary_key=True)
+    title: Mapped[str] = mapped_column(nullable=False, unique=True)
+    description: Mapped[str] = mapped_column(nullable=False, unique=True)
+    created_at: Mapped[datetime] = mapped_column(nullable=False, server_default=func.now())
+    img: Mapped[str] = mapped_column(nullable=False)
+
+    creator_guid: Mapped[uuid.UUID] = mapped_column(ForeignKey('Users.guid', ondelete="CASCADE"), nullable=False)
+    creator: Mapped["User"] = relationship(back_populates="created_games", single_parent=True)
+
+
+class Role(Base):
+    __tablename__ = 'Roles'
 
     id: Mapped[int] = mapped_column(primary_key=True)
-    title: Mapped[str] = mapped_column(nullable=False)
-    description: Mapped[str] = mapped_column(nullable=False)
-    picture: Mapped[str] = mapped_column(nullable=False)
-    created_at: Mapped[datetime.datetime] = mapped_column(
-        DateTime(timezone=True), server_default=func.now()
-    )
 
-    creator_id: Mapped[int] = mapped_column(ForeignKey("Users.id", onupdate="CASCADE", ondelete="CASCADE"))
-    creator: Mapped["User"] = relationship("User", back_populates="created_games")
+    user_guid: Mapped[uuid.UUID] = mapped_column(ForeignKey('Users.guid', ondelete="CASCADE"), nullable=False)
+    user: Mapped["User"] = relationship(back_populates="roles", single_parent=True)
 
-    users_that_liked: Mapped[List["User"]] = relationship(
-        "User",
-        back_populates="liked_games"
-    )
+    name: Mapped[str] = mapped_column(nullable=False)
 
 
-class Admin(Base):
-    __tablename__: str = "Admins"
-    id: Mapped[int] = mapped_column(ForeignKey("Users.id", ondelete="CASCADE", onupdate="CASCADE"), primary_key=True)
-    email: Mapped[str] = mapped_column(nullable=False)
-
-    user: Mapped["User"] = relationship("User")
+class Vote(Base):
+    __tablename__ = 'Votes'
+    user_guid: Mapped[uuid.UUID] = mapped_column(ForeignKey("Users.guid", ondelete="CASCADE"), primary_key=True)
+    game_guid: Mapped[uuid.UUID] = mapped_column(ForeignKey("Games.guid", ondelete="CASCADE"), primary_key=True)
+    type: Mapped[int] = mapped_column(nullable=False)

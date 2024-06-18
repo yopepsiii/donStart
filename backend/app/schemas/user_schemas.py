@@ -1,24 +1,27 @@
-from typing import Optional
+import datetime
+import uuid
+from typing import Optional, List
 
 from pydantic import BaseModel, EmailStr
 
 
 class UserBase(BaseModel):
     username: str
+    profile_picture: str
+
+
+class UserCreate(BaseModel):
+    username: str
+    profile_picture: Optional[str] = "some picture"  # пофиксить так как в бд тоже такое значение присваиается
     password: str
     email: EmailStr
-    image: Optional[str] = "img"
-
-
-class UserCreate(UserBase):
-    pass
 
 
 class UserUpdate(BaseModel):
-    username: Optional[str]
-    password: Optional[str]
-    email: Optional[EmailStr]
-    image: Optional[str] = "img"
+    username: Optional[str] = None
+    password: Optional[str] = None
+    email: Optional[EmailStr] = None
+    profile_picture: Optional[str] = None
 
 
 class UserLogin(BaseModel):
@@ -26,13 +29,22 @@ class UserLogin(BaseModel):
     password: str
 
 
-class UserRegister(BaseModel):
+class UserProfile(UserBase):
+    guid: uuid.UUID
     email: EmailStr
-    username: str
-    password: str
+    created_at: datetime.datetime
+    roles: List["role_schemas.RoleUserOut"]
+    created_games: List["game_schemas.GameOut"]
 
 
-class UserOut(BaseModel):
-    image: str
-    username: str
-    id: int
+
+class UserOut(UserBase):
+    guid: uuid.UUID
+    roles: List["role_schemas.RoleUserOut"]
+
+
+class UserGamePreview(UserBase):
+    guid: uuid.UUID
+
+
+from backend.app.schemas import role_schemas, game_schemas

@@ -2,7 +2,7 @@ from fastapi import FastAPI
 from starlette.middleware.sessions import SessionMiddleware
 
 from backend.app.config import settings
-from backend.app.routers import users, games, admin, auth
+from backend.app.routers import users, games, admin, auth, roles, votes
 
 from fastapi.middleware.cors import CORSMiddleware
 
@@ -24,6 +24,8 @@ app.include_router(auth.router)
 app.include_router(games.router)
 app.include_router(users.router)
 app.include_router(admin.router)
+app.include_router(roles.router)
+app.include_router(votes.router)
 
 
 @app.get('/')

@@ -1,11 +1,16 @@
+import uuid
+
 from authlib.integrations.starlette_client import OAuth
 from fastapi import Depends, HTTPException
 from fastapi.security import OAuth2PasswordBearer
 from jose import jwt, JWTError
 from datetime import datetime, timedelta
 
+from sqlalchemy.orm import Session
 from starlette import status
 
+from . import models
+from .database import get_db
 from .schemas import auth_schemas
 
 from .config import settings
@@ -47,11 +52,11 @@ async def verify_token(token: str, credentials_exception):
     try:
         payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
 
-        user_id: int = payload.get("user_id")
+        user_guid = payload.get("user_guid")
 
-        if user_id is None:
+        if user_guid is None:
             raise credentials_exception
-        token_data = auth_schemas.TokenData(id=user_id)
+        token_data = auth_schemas.TokenData(guid=uuid.UUID(user_guid))
     except JWTError as e:
         raise credentials_exception from e
 
@@ -65,3 +70,11 @@ async def get_current_user(token: str = Depends(oauth2_scheme)):
         headers={"WWW-Authenticate": "Bearer"},
     )  # Создаем описание ошибки для неправильного токена
     return await verify_token(token, credentials_exception)
+
+
+async def is_current_user_admin(current_user: models.User = Depends(get_current_user), db: Session = Depends(get_db)):
+    admin_role = db.query(models.Role).filter(models.Role.name == "Администратор 💫").first()
+
+    if admin_role is None:
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Don't have permissions to perform.")
+    return current_user
