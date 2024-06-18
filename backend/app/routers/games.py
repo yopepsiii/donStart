@@ -26,7 +26,7 @@ async def get_games(db: Session = Depends(get_db)):
 async def get_game(guid: uuid.UUID, db: Session = Depends(get_db)):
     game = db.query(models.Game).filter(models.Game.guid == guid).first()
     if game is None:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=f"Game {guid} not found")
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=f"Game {guid} doesn't exist")
     return game
 
 
@@ -50,7 +50,7 @@ async def delete_game(guid: uuid.UUID, db: Session = Depends(get_db),
     game = game_query.first()
 
     if game is None:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=f"Game {guid} not found")
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=f"Game {guid} doesn't exist")
     if game.creator_guid != current_user.guid:
         raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail=f"You can't delete games from other users")
 
@@ -64,7 +64,7 @@ async def update_game(guid: uuid.UUID, updated_game_data: game_schemas.GameUpdat
     game = game_query.first()
 
     if game is None:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=f"Game {guid} not found")
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=f"Game {guid} doesn't exist")
     if game.creator_guid != current_user.guid:
         raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail=f"You can't update games from other users")
 

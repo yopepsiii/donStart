@@ -24,7 +24,7 @@ async def get_user(guid: uuid.UUID, db: Session = Depends(get_db)):
     user = db.query(models.User).filter(models.User.guid == guid).first()  # type: ignore
     if user is None:
         raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND, detail=f"User with ID {guid} not found"
+            status_code=status.HTTP_404_NOT_FOUND, detail=f"User with ID {guid} doesn't exist"
         )
     return user
 
@@ -57,7 +57,7 @@ async def update_user(
     if user is None:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
-            detail=f"User with ID {guid} is not exists",
+            detail=f"User with ID {guid} doesn't exist",
         )
     if user.guid != current_user.guid:
         raise HTTPException(

@@ -9,7 +9,7 @@ from ..database import get_db
 from ..oauth2 import oauth_client, create_access_token
 from ..schemas import auth_schemas, user_schemas
 
-router = APIRouter(tags=["Authentication"])
+router = APIRouter(tags=["Authentification"])
 
 
 @router.post("/login", response_model=auth_schemas.Token)

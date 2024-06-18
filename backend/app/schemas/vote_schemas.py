@@ -1,6 +1,6 @@
 import uuid
 
-from pydantic import BaseModel
+from pydantic import BaseModel, conint
 
 
 class VoteBase(BaseModel):
@@ -8,6 +8,5 @@ class VoteBase(BaseModel):
 
 
 class VoteCreate(VoteBase):
-    user_guid: uuid.UUID
     game_guid: uuid.UUID
-    type: int
+    type: conint(le=1)

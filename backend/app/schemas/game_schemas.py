@@ -26,6 +26,8 @@ class GameUpdate(BaseModel):
 class GameOut(GameBase):
     guid: uuid.UUID
     creator: user_schemas.UserGamePreview
+    likes_count: int
+    dislikes_count: int
 
 
 class GameFullInfo(GameOut):
