@@ -14,7 +14,7 @@ origins = ['http://localhost:8000',
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=origins,
+    allow_origins=["*"],
     allow_credentials=True,
     allow_methods=["*"],  # Какие HTTP-методы разрешены для обработки
     allow_headers=["*"],  # Какие headers разрешены для обработки

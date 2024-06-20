@@ -9,9 +9,11 @@ SQLALCHEMY_DATABASE_URL = (
     f":{settings.database_password}"
     f"@{settings.database_hostname}"
     f":{settings.database_port}"
-    f"/{settings.database_name}-test"
+    f"/{settings.database_name}"
 )
 
+# Почему изменил название бд с ...-test на ...?
+# У нас просто установлена локально бд продовская, тестовая - для тестов pytest
 
 engine = create_engine(SQLALCHEMY_DATABASE_URL)
 

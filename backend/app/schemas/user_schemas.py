@@ -37,7 +37,6 @@ class UserProfile(UserBase):
     created_games: List["game_schemas.GameOut"]
 
 
-
 class UserOut(UserBase):
     guid: uuid.UUID
     roles: List["role_schemas.RoleUserOut"]

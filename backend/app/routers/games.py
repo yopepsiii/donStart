@@ -31,7 +31,7 @@ async def get_game(guid: uuid.UUID, db: Session = Depends(get_db)):
 
 
 # Создать новую игру
-@router.post("", response_model=game_schemas.GameOut)
+@router.post("", response_model=game_schemas.GameOut, status_code=status.HTTP_201_CREATED)
 async def create_game(game_data: game_schemas.GameCreate, db: session = Depends(get_db),
                       current_user: models.User = Depends(get_current_user)):
     game = models.Game(creator_guid=current_user.guid, **game_data.dict())
