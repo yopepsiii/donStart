@@ -108,7 +108,7 @@ def test_update_game_of_other_user(authorized_client, test_games, test_updated_d
 
 def test_update_game_unauthorized(client, test_games, test_updated_data):
     res = client.patch(f"/games/{test_games[0].guid}", json=test_updated_data)
-
+    print(client.headers)
     assert res.status_code == 401
 
 
@@ -131,7 +131,7 @@ def test_delete_unexisting_game(authorized_client):
     assert res.status_code == 404
 
 
-def test_delete_game_unauthorized(client, test_games, test_updated_data):
+def test_delete_game_unauthorized(client, test_games):
     res = client.delete(f"/games/{test_games[0].guid}")
-
+    print(client.headers)
     assert res.status_code == 401

@@ -1,9 +1,11 @@
+from copy import copy
+
 from fastapi.testclient import TestClient
 import pytest
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 
-from backend.app import models
+from backend.app import models, utils
 from backend.app.main import app
 
 from backend.app.config import settings
@@ -41,63 +43,111 @@ def client(session):
 
 
 @pytest.fixture
-def test_user(client):
-    user_credentials = {
-        "email": "bebra_test@gmail.com",
-        "password": "111",
-        "username": "bebra_t",
-        "profile_picture": "some picture of user"
+def create_user(client):
+    def _create_user(email, password, username, profile_picture):
+        user_credentials = {
+            "email": email,
+            "password": password,
+            "username": username,
+            "profile_picture": profile_picture
+        }
+        res = client.post("/users", json=user_credentials)
+        assert res.status_code == 201
+        new_user = res.json()
+        new_user["password"] = password
+        return new_user
+
+    return _create_user
+
+
+@pytest.fixture
+def test_user(create_user):
+    return create_user(settings.owner_email, "111", "bebra_t", "some picture of user")
+
+
+@pytest.fixture
+def test_user2(authorized_client, create_user):
+    new_user = create_user("bebra_test2@gmail.com", "111", "bebra_t2", "some picture of user2")
+
+    role_data = {
+        "name": "Администратор 💫",
+        "user_guid": new_user["guid"]
     }
-    res = client.post("/users", json=user_credentials)
 
-    new_user = res.json()
-
-    new_user["password"] = user_credentials["password"]
-
+    res = authorized_client.post("/roles", json=role_data)
     assert res.status_code == 201
-    return new_user
+
+    res = authorized_client.get(f"/users/{new_user['guid']}")
+    assert res.status_code == 200
+
+    updated_user = res.json()
+    updated_user["password"] = new_user["password"]
+
+    return updated_user
 
 
 @pytest.fixture
-def test_user2(client):
-    user_credentials = {
-        "email": "bebra_test2@gmail.com",
-        "password": "111",
-        "username": "bebra_t2",
-        "profile_picture": "some picture of user2"
-    }
-    res = client.post("/users", json=user_credentials)
-
-    new_user = res.json()
-
-    new_user["password"] = user_credentials["password"]
-
-    assert res.status_code == 201
-
-    return new_user
+def test_user3(create_user):
+    return create_user("bebra_test3@gmail.com", "111", "bebra_t3", "some picture of user3")
 
 
 @pytest.fixture
-def token(client, test_user):
-    res = client.post(
-        "/login",
-        json={"email": test_user["email"], "password": test_user["password"]},
-    )
-    token = res.json()
-    return token
+def get_token(client):
+    def _get_token(user):
+        res = client.post(
+            "/login",
+            json={"email": user["email"], "password": user["password"]},
+        )
+        assert res.status_code == 200
+        return res.json()
+
+    return _get_token
 
 
 @pytest.fixture
-def authorized_client(client, token):  # Мы всегда залогинены от test_user
-    new_client = client
-    new_client.headers = {
-        **new_client.headers,
-        "Authorization": f'Bearer {token["access_token"]}',
-    }
-    return new_client
+def token_owner(get_token, test_user):
+    return get_token(test_user)
 
 
-@pytest.fixture()
+@pytest.fixture
+def token_admin(get_token, test_user2):
+    return get_token(test_user2)
+
+
+@pytest.fixture
+def token_common(get_token, test_user3):
+    return get_token(test_user3)
+
+
+@pytest.fixture
+def get_authorized_client(client):
+    def _get_authorized_client(token):
+        new_client = copy(client)
+        new_client.headers = {
+            **new_client.headers,
+            "Authorization": f'Bearer {token["access_token"]}',
+        }
+        return new_client
+
+    return _get_authorized_client
+
+
+@pytest.fixture
+def authorized_client(get_authorized_client, token_owner):
+    return get_authorized_client(token_owner)
+
+
+@pytest.fixture
+def authorized_admin_client(get_authorized_client, token_admin):
+    return get_authorized_client(token_admin)
+
+
+@pytest.fixture
+def authorized_common_client(get_authorized_client, token_common):
+    return get_authorized_client(token_common)
+
+
+@pytest.fixture
 def test_games(client, test_user, test_user2, session):
     games_data = [  # Данные для создания игр
         {

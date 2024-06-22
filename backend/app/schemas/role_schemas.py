@@ -10,6 +10,7 @@ class RoleBase(BaseModel):
 
 class RoleUserOut(RoleBase):
     id: int
+    user_guid: uuid.UUID
 
 
 class RoleCreate(RoleBase):

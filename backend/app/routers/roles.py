@@ -5,6 +5,7 @@ from sqlalchemy.orm import Session
 from starlette import status
 
 from backend.app import models
+from backend.app.config import settings
 from backend.app.database import get_db
 from backend.app.oauth2 import is_current_user_admin
 from backend.app.schemas import role_schemas
@@ -16,9 +17,9 @@ router = APIRouter(prefix="/roles", tags=["Roles"])
 @router.post('', response_model=role_schemas.RoleUserOut, status_code=status.HTTP_201_CREATED)
 async def create_role(role_data: role_schemas.RoleCreate, db: Session = Depends(get_db),
                       current_user: models.User = Depends(is_current_user_admin)):
-    if role_data.name == "Администратор 💫":
+    if role_data.name in ["Администратор 💫", "Создатель 🌀"] and current_user.email != settings.owner_email:
         raise HTTPException(status_code=status.HTTP_403_FORBIDDEN,
-                            detail="You don't have permission to perform this action")
+                            detail="You don't have permission to create this role")
 
     if role_data.user_guid is None:
         user = current_user

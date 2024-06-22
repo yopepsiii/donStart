@@ -52,11 +52,11 @@ async def verify_token(token: str, credentials_exception):
     try:
         payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
 
-        user_guid = payload.get("user_guid")
+        user_guid, email = payload.get("user_guid"), payload.get("email")
 
-        if user_guid is None:
+        if user_guid is None or email is None:
             raise credentials_exception
-        token_data = auth_schemas.TokenData(guid=uuid.UUID(user_guid))
+        token_data = auth_schemas.TokenData(guid=uuid.UUID(user_guid), email=email)
     except JWTError as e:
         raise credentials_exception from e
 
@@ -73,8 +73,10 @@ async def get_current_user(token: str = Depends(oauth2_scheme)):
 
 
 async def is_current_user_admin(current_user: models.User = Depends(get_current_user), db: Session = Depends(get_db)):
-    admin_role = db.query(models.Role).filter(models.Role.name == "Администратор 💫").first()
+    admin_role = db.query(models.Role).filter(models.Role.name.in_(["Администратор 💫", "Создатель 🌀"]), models.Role.user_guid == current_user.guid).first()
 
     if admin_role is None:
-        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Don't have permissions to perform.")
+        if current_user.email != settings.owner_email:
+            raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Don't have permissions to perform.")
+
     return current_user
