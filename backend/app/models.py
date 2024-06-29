@@ -12,7 +12,7 @@ class User(Base):
     __tablename__ = 'Users'
 
     guid: Mapped[uuid.UUID] = mapped_column(types.Uuid, server_default=text("gen_random_uuid()"), primary_key=True)
-    username: Mapped[str] = mapped_column(String(10), nullable=False)
+    username: Mapped[str] = mapped_column(nullable=False)
     email: Mapped[str] = mapped_column(unique=True, nullable=False)
     password: Mapped[str] = mapped_column(nullable=False)
     created_at: Mapped[datetime] = mapped_column(nullable=False, server_default=func.now())
@@ -30,7 +30,7 @@ class Role(Base):
     user_guid: Mapped[uuid.UUID] = mapped_column(ForeignKey('Users.guid', ondelete="CASCADE"), nullable=False)
     user: Mapped["User"] = relationship(back_populates="roles", single_parent=True)
 
-    name: Mapped[str] = mapped_column(String(20), nullable=False)
+    name: Mapped[str] = mapped_column(nullable=False)
 
 
 class Vote(Base):
@@ -44,8 +44,8 @@ class Game(Base):
     __tablename__ = 'Games'
 
     guid: Mapped[uuid.UUID] = mapped_column(types.Uuid, server_default=text("gen_random_uuid()"), primary_key=True)
-    title: Mapped[str] = mapped_column(String(30), nullable=False, unique=True)
-    description: Mapped[str] = mapped_column(String(1000), nullable=False, unique=True)
+    title: Mapped[str] = mapped_column(nullable=False, unique=True)
+    description: Mapped[str] = mapped_column(nullable=False, unique=True)
     created_at: Mapped[datetime] = mapped_column(nullable=False, server_default=func.now())
     img: Mapped[str] = mapped_column(nullable=False)
 

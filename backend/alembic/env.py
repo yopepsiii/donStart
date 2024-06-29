@@ -18,7 +18,7 @@ config.set_main_option(
     f":{settings.database_password}"
     f"@{settings.database_hostname}"
     f":{settings.database_port}"
-    f"/{settings.database_name}-test",
+    f"/{settings.database_name}",
 )
 # Interpret the config file for Python logging.
 # This line sets up loggers basically.

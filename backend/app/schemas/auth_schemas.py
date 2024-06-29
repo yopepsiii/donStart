@@ -10,3 +10,4 @@ class Token(BaseModel):
 
 class TokenData(BaseModel):
     guid: uuid.UUID
+    email: str

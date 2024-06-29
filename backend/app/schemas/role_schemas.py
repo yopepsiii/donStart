@@ -10,6 +10,7 @@ class RoleBase(BaseModel):
 
 class RoleUserOut(RoleBase):
     id: int
+    user_guid: uuid.UUID
 
 
 class RoleCreate(RoleBase):
@@ -18,3 +19,4 @@ class RoleCreate(RoleBase):
 
 class RoleUpdate(BaseModel):
     user_guid: Optional[uuid.UUID] = None
+    name: Optional[str] = None

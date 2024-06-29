@@ -27,7 +27,7 @@ async def login(
             status_code=status.HTTP_403_FORBIDDEN, detail="Invalid credentials"
         )
 
-    access_token = await oauth2.create_access_token(data={"user_guid": str(user.guid)})
+    access_token = await oauth2.create_access_token(data={"user_guid": str(user.guid), "email": user.email})
     return {"access_token": access_token, "token_type": "bearer"}
 
 
