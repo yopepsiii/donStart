@@ -9,9 +9,13 @@ class RoleBase(BaseModel):
     color: str
 
 
-class RoleUserOut(RoleBase):
+class RoleOut(RoleBase):
     id: int
     user_guid: uuid.UUID
+
+
+class RoleUserOut(RoleBase):
+    id: int
 
 
 class RoleCreate(RoleBase):

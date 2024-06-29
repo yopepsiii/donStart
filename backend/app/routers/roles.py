@@ -12,7 +12,7 @@ from backend.app.schemas import role_schemas
 router = APIRouter(prefix="/roles", tags=["Roles"])
 
 
-@router.post("/", response_model=role_schemas.RoleUserOut, status_code=status.HTTP_201_CREATED)
+@router.post("/", response_model=role_schemas.RoleOut, status_code=status.HTTP_201_CREATED)
 async def create_role(new_role_data: role_schemas.RoleCreate, db: Session = Depends(get_db),
                       current_user: models.User = Depends(is_current_user_admin)):
     if new_role_data.name in ["Администратор 💫", "Создатель 🌀"] and current_user.email != settings.owner_email:
@@ -45,7 +45,7 @@ async def delete_role(id: int, db: Session = Depends(get_db),
     return {"message": "Sucessfuly deleted"}
 
 
-@router.patch("/{id}", response_model=role_schemas.RoleUserOut)
+@router.patch("/{id}", response_model=role_schemas.RoleOut)
 async def update_role(id: int, updated_role_data: role_schemas.RoleUpdate, db: Session = Depends(get_db),
                       current_user: models.User = Depends(is_current_user_admin)):
     role, role_query = await check_role(id, current_user, db, get_query=True)
@@ -54,11 +54,12 @@ async def update_role(id: int, updated_role_data: role_schemas.RoleUpdate, db: S
         raise HTTPException(status_code=status.HTTP_403_FORBIDDEN,
                             detail="You do not have permission to update role name with such name.")
 
-    potential_user = db.query(models.User).filter(models.User.guid == updated_role_data.user_guid).first()
+    if updated_role_data.user_guid is not None:
+        potential_user = db.query(models.User).filter(models.User.guid == updated_role_data.user_guid).first()
 
-    if potential_user is None:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND,
-                            detail=f"User {updated_role_data.user_guid} does not exist.")
+        if potential_user is None:
+            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND,
+                                detail=f"User {updated_role_data.user_guid} does not exist.")
 
     updated_data = updated_role_data.dict(exclude_unset=True)
 
