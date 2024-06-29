@@ -19,3 +19,4 @@ class RoleCreate(RoleBase):
 
 class RoleUpdate(BaseModel):
     user_guid: Optional[uuid.UUID] = None
+    name: Optional[str] = None

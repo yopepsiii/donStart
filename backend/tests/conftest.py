@@ -23,7 +23,8 @@ TestingSessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engin
 def session():
     Base.metadata.drop_all(bind=engine)
     Base.metadata.create_all(bind=engine)
-    db = TestingSessionLocal()
+    db = TestingSessionLocal(expire_on_commit=False)
+
     try:
         yield db
     finally:
@@ -148,7 +149,7 @@ def authorized_common_client(get_authorized_client, token_common):
 
 
 @pytest.fixture
-def test_games(client, test_user, test_user2, session):
+def test_games(test_user, test_user2, session):
     games_data = [  # Данные для создания игр
         {
             "title": "Тестовая игра",
@@ -179,21 +180,51 @@ def test_games(client, test_user, test_user2, session):
 
     def create_game_model(
             game,
-    ):  # Словарь с данными для одной записки -> модель записки
+    ):
         return models.Game(**game)
 
     game_map = map(
         create_game_model, games_data
-    )  # Преобразуем список из словарей данных для сообщений в список моделей
-    games = list(game_map)
+    )
+    games_list = list(game_map)
 
-    session.add_all(games)
+    session.add_all(games_list)
     session.commit()
 
-    messages = session.query(models.Game).all()
-    return messages
+    games = session.query(models.Game).all()
+    return games
 
 
 @pytest.fixture
 def test_updated_data():
     return {"title": "updated title", "description": "updated content", "img": "updated picture"}
+
+
+@pytest.fixture
+def test_roles(test_user, session):
+    roles_data = [
+        {"name": "test1", "user_guid": test_user["guid"]},
+        {"name": "test2", "user_guid": test_user["guid"]},
+        {"name": "test3", "user_guid": test_user["guid"]}
+    ]
+
+    def create_role_model(
+            role,
+    ):
+        return models.Role(**role)
+
+    role_map = map(
+        create_role_model, roles_data
+    )
+    roles_list = list(role_map)
+
+    session.add_all(roles_list)
+    session.commit()
+
+    roles = session.query(models.Role).all()
+    return roles
+
+
+@pytest.fixture
+def test_updated_role_data(test_user2):
+    return {"name": "new_test", "user_guid": test_user2.guid}

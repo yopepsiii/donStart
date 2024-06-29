@@ -75,8 +75,7 @@ async def get_current_user(token: str = Depends(oauth2_scheme)):
 async def is_current_user_admin(current_user: models.User = Depends(get_current_user), db: Session = Depends(get_db)):
     admin_role = db.query(models.Role).filter(models.Role.name.in_(["Администратор 💫", "Создатель 🌀"]), models.Role.user_guid == current_user.guid).first()
 
-    if admin_role is None:
-        if current_user.email != settings.owner_email:
-            raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Don't have permissions to perform.")
+    if admin_role is None and current_user.email != settings.owner_email:
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Don't have permissions to perform.")
 
     return current_user
