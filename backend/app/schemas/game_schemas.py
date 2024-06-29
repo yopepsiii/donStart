@@ -30,6 +30,12 @@ class GameOut(GameBase):
     dislikes_count: int
 
 
+class GameUserProfile(GameBase):
+    guid: uuid.UUID
+    likes_count: int
+    dislikes_count: int
+
+
 class GameFullInfo(GameOut):
     created_at: datetime.datetime
 
@@ -38,5 +44,3 @@ class GameFullInfo(GameOut):
     def trim_date(cls, field: datetime.datetime):
         # Преобразуем значение в дату
         return field.date()
-
-

@@ -34,7 +34,7 @@ class UserProfile(UserBase):
     email: EmailStr
     created_at: datetime.datetime
     roles: List["role_schemas.RoleUserOut"]
-    created_games: List["game_schemas.GameOut"]
+    created_games: List["game_schemas.GameUserProfile"]
 
 
 class UserOut(UserBase):
