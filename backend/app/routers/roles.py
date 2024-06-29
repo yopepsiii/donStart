@@ -69,6 +69,7 @@ async def update_role(id: int, updated_role_data: role_schemas.RoleUpdate, db: S
 
     return role
 
+
 async def check_role(id: int, current_user, db, get_query=False):
     role_query = db.query(models.Role).filter(models.Role.id == id)
     role = role_query.first()
