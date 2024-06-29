@@ -6,6 +6,7 @@ from pydantic import BaseModel
 
 class RoleBase(BaseModel):
     name: str
+    color: str
 
 
 class RoleUserOut(RoleBase):
@@ -20,3 +21,4 @@ class RoleCreate(RoleBase):
 class RoleUpdate(BaseModel):
     user_guid: Optional[uuid.UUID] = None
     name: Optional[str] = None
+    color: Optional[str] = None

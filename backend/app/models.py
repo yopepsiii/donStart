@@ -31,6 +31,7 @@ class Role(Base):
     user: Mapped["User"] = relationship(back_populates="roles", single_parent=True)
 
     name: Mapped[str] = mapped_column(nullable=False)
+    color: Mapped[str] = mapped_column(nullable=False)
 
 
 class Vote(Base):
