@@ -7,6 +7,7 @@ from sqlalchemy.sql.functions import current_user
 from starlette import status
 
 from backend.app import models
+from backend.app.config import settings
 from backend.app.database import get_db
 from backend.app.oauth2 import get_current_user
 from backend.app.schemas import game_schemas
@@ -51,7 +52,7 @@ async def delete_game(guid: uuid.UUID, db: Session = Depends(get_db),
 
     if game is None:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=f"Game {guid} doesn't exist")
-    if game.creator_guid != current_user.guid:
+    if game.creator_guid != current_user.guid and current_user.email != settings.owner_email:
         raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail=f"You can't delete games from other users")
 
     game_query.delete(synchronize_session=False)
@@ -65,7 +66,7 @@ async def update_game(guid: uuid.UUID, updated_game_data: game_schemas.GameUpdat
 
     if game is None:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=f"Game {guid} doesn't exist")
-    if game.creator_guid != current_user.guid:
+    if game.creator_guid != current_user.guid and current_user.email != settings.owner_email:
         raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail=f"You can't update games from other users")
 
     to_update = updated_game_data.dict(exclude_unset=True)
