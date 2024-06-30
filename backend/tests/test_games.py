@@ -100,8 +100,8 @@ def test_update_unexisting_game(authorized_client, test_updated_data):
     assert res.status_code == 404
 
 
-def test_update_game_of_other_user(authorized_client, test_games, test_updated_data):
-    res = authorized_client.patch(f"/games/{test_games[2].guid}", json=test_updated_data)
+def test_update_game_of_other_user(authorized_admin_client, test_games, test_updated_data):
+    res = authorized_admin_client.patch(f"/games/{test_games[0].guid}", json=test_updated_data)
 
     assert res.status_code == 403
 
@@ -119,8 +119,8 @@ def test_delete_game(authorized_client, test_games):
     assert res.status_code == 204
 
 
-def test_delete_game_of_other_user(authorized_client, test_games):
-    res = authorized_client.delete(f"/games/{test_games[2].guid}")
+def test_delete_game_of_other_user(authorized_admin_client, test_games):
+    res = authorized_admin_client.delete(f"/games/{test_games[0].guid}")
 
     assert res.status_code == 403
 

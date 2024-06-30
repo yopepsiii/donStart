@@ -72,7 +72,8 @@ def test_user2(authorized_client, create_user):
 
     role_data = {
         "name": "Администратор 💫",
-        "user_guid": new_user["guid"]
+        "user_guid": new_user["guid"],
+        "color": "aqua"
     }
 
     res = authorized_client.post("/roles", json=role_data)
