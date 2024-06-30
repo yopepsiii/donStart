@@ -3,11 +3,11 @@ from sqlalchemy.orm import Session
 from sqlalchemy.sql import roles
 from starlette import status
 
-from backend.app import models
-from backend.app.config import settings
-from backend.app.database import get_db
-from backend.app.oauth2 import is_current_user_admin
-from backend.app.schemas import role_schemas
+from .. import models
+from ..config import settings
+from ..database import get_db
+from ..oauth2 import is_current_user_admin
+from ..schemas import role_schemas
 
 router = APIRouter(prefix="/roles", tags=["Roles"])
 

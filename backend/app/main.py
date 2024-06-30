@@ -1,8 +1,8 @@
 from fastapi import FastAPI
 from starlette.middleware.sessions import SessionMiddleware
 
-from backend.app.config import settings
-from backend.app.routers import users, games, admin, auth, roles, votes
+from .config import settings
+from .routers import users, games, admin, auth, roles, votes
 
 from fastapi.middleware.cors import CORSMiddleware
 

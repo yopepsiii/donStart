@@ -46,4 +46,4 @@ class UserGamePreview(UserBase):
     guid: uuid.UUID
 
 
-from backend.app.schemas import role_schemas, game_schemas
+from ..schemas import role_schemas, game_schemas

@@ -1,8 +1,8 @@
 """init
 
-Revision ID: 0039e8fe894f
+Revision ID: b1877364f901
 Revises: 
-Create Date: 2024-06-17 17:50:17.667257
+Create Date: 2024-06-30 20:42:22.627019
 
 """
 from typing import Sequence, Union
@@ -12,7 +12,7 @@ import sqlalchemy as sa
 
 
 # revision identifiers, used by Alembic.
-revision: str = '0039e8fe894f'
+revision: str = 'b1877364f901'
 down_revision: Union[str, None] = None
 branch_labels: Union[str, Sequence[str], None] = None
 depends_on: Union[str, Sequence[str], None] = None
@@ -26,6 +26,7 @@ def upgrade() -> None:
     sa.Column('email', sa.String(), nullable=False),
     sa.Column('password', sa.String(), nullable=False),
     sa.Column('created_at', sa.DateTime(), server_default=sa.text('now()'), nullable=False),
+    sa.Column('profile_picture', sa.String(), server_default='some picture', nullable=False),
     sa.PrimaryKeyConstraint('guid'),
     sa.UniqueConstraint('email')
     )
@@ -34,15 +35,19 @@ def upgrade() -> None:
     sa.Column('title', sa.String(), nullable=False),
     sa.Column('description', sa.String(), nullable=False),
     sa.Column('created_at', sa.DateTime(), server_default=sa.text('now()'), nullable=False),
-    sa.Column('creator_id', sa.Uuid(), nullable=False),
-    sa.ForeignKeyConstraint(['creator_id'], ['Users.guid'], ondelete='CASCADE'),
-    sa.PrimaryKeyConstraint('guid')
+    sa.Column('img', sa.String(), nullable=False),
+    sa.Column('creator_guid', sa.Uuid(), nullable=False),
+    sa.ForeignKeyConstraint(['creator_guid'], ['Users.guid'], ondelete='CASCADE'),
+    sa.PrimaryKeyConstraint('guid'),
+    sa.UniqueConstraint('description'),
+    sa.UniqueConstraint('title')
     )
     op.create_table('Roles',
     sa.Column('id', sa.Integer(), nullable=False),
-    sa.Column('user_id', sa.Uuid(), nullable=False),
+    sa.Column('user_guid', sa.Uuid(), nullable=False),
     sa.Column('name', sa.String(), nullable=False),
-    sa.ForeignKeyConstraint(['user_id'], ['Users.guid'], ondelete='CASCADE'),
+    sa.Column('color', sa.String(), nullable=False),
+    sa.ForeignKeyConstraint(['user_guid'], ['Users.guid'], ondelete='CASCADE'),
     sa.PrimaryKeyConstraint('id')
     )
     op.create_table('Votes',

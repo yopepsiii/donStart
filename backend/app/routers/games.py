@@ -3,14 +3,13 @@ from typing import List
 
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session, session
-from sqlalchemy.sql.functions import current_user
 from starlette import status
 
-from backend.app import models
-from backend.app.config import settings
-from backend.app.database import get_db
-from backend.app.oauth2 import get_current_user
-from backend.app.schemas import game_schemas
+from .. import models
+from ..config import settings
+from ..database import get_db
+from ..oauth2 import get_current_user
+from ..schemas import game_schemas
 
 router = APIRouter(prefix="/games", tags=["Games"])
 

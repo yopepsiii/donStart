@@ -4,7 +4,7 @@ from typing import Optional
 
 from pydantic import BaseModel, validator, field_validator
 
-from backend.app.schemas import user_schemas
+from ..schemas import user_schemas
 
 
 class GameBase(BaseModel):

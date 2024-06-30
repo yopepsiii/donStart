@@ -1,0 +1,46 @@
+services:
+  backend:
+    container_name: backend
+    build: ./backend
+    volumes:
+      - ./backend:/usr/src/donStart/backend
+      - ./alembic.ini:/usr/src/donStart/alembic.ini
+    env_file:
+      - backend/app/.env
+    command: >
+      sh -c "uvicorn backend.app.main:app --host 0.0.0.0 --port 8000 --reload ; alembic upgrade head"
+    depends_on:
+      - postgres
+
+#  frontend:
+#    container_name: frontend
+#    build: ./frontend
+#    ports:
+#      - 3000:3000
+#    volumes:
+#      - ./frontend:/usr/src/donStart/frontend
+#    depends_on:
+#      - backend
+  nginx:
+    image: nginx:latest
+    container_name: nginx
+    ports:
+      - 80:80
+    volumes:
+      - ./backend/nginx/data/nginx.conf:/etc/nginx/conf.d/default.conf:ro
+    depends_on:
+      - backend
+  postgres:
+    image: postgres
+    container_name: postgres
+    environment:
+      - POSTGRES_PASSWORD=test123
+      - POSTGRES_DB=donStart
+    volumes:
+      - postgres-db:/var/lib/postgresql/data
+
+volumes:
+  postgres-db:
+
+
+

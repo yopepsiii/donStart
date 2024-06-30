@@ -2,10 +2,10 @@ from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 from starlette import status
 
-from backend.app import models
-from backend.app.database import get_db
-from backend.app.oauth2 import get_current_user
-from backend.app.schemas import vote_schemas
+from .. import models
+from ..database import get_db
+from ..oauth2 import get_current_user
+from ..schemas import vote_schemas
 
 router = APIRouter(prefix="/votes", tags=["Votes (Likes/Dislikes)"])
 
