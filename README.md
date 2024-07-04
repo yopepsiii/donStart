@@ -5,7 +5,7 @@
 
 ## Какой стек используется?
 Frontend - ...  
-Backend - FastAPI, PostgreSQL, ELK(Elasticsearch, Logstash, Kafka)(WIP), Redis(WIP), Nginx(WIP)
+Backend - FastAPI, PostgreSQL, ELK(Elasticsearch, Logstash, Kafka)(WIP), Redis, Nginx, MongoDB(WIP)
 
 CI/CD - Docker, Kubernetes(WIP)
 
