@@ -1,7 +1,12 @@
+import hashlib
+import json
+import time
 import uuid
 from typing import List
 
 from fastapi import APIRouter, Depends, HTTPException
+from fastapi_cache import FastAPICache
+from fastapi_cache.decorator import cache
 from sqlalchemy.orm import Session, session
 from starlette import status
 
@@ -10,24 +15,28 @@ from ..config import settings
 from ..database import get_db
 from ..oauth2 import get_current_user
 from ..schemas import game_schemas
+from ..utils import validate_list, validate
 
 router = APIRouter(prefix="/games", tags=["Games"])
 
 
 # Получить все игры
+
 @router.get("", response_model=List[game_schemas.GameOut])
+@cache(expire=60*60, namespace="games")
 async def get_games(db: Session = Depends(get_db)):
     games = db.query(models.Game).all()
-    return games
+    return validate_list(values=games, class_type=game_schemas.GameOut)
 
 
 # Получить игру по GUID
 @router.get("/{guid}", response_model=game_schemas.GameFullInfo)
+@cache(expire=60*60, namespace="game_by_guid")
 async def get_game(guid: uuid.UUID, db: Session = Depends(get_db)):
     game = db.query(models.Game).filter(models.Game.guid == guid).first()
     if game is None:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=f"Game {guid} doesn't exist")
-    return game
+    return validate(value=game, class_type=game_schemas.GameFullInfo)
 
 
 # Создать новую игру
@@ -38,6 +47,8 @@ async def create_game(game_data: game_schemas.GameCreate, db: session = Depends(
     db.add(game)
     db.commit()
     db.refresh(game)
+
+    await FastAPICache.clear()
 
     return game
 
@@ -53,6 +64,8 @@ async def delete_game(guid: uuid.UUID, db: Session = Depends(get_db),
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=f"Game {guid} doesn't exist")
     if game.creator_guid != current_user.guid and current_user.email != settings.owner_email:
         raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail=f"You can't delete games from other users")
+
+    await FastAPICache.clear()
 
     game_query.delete(synchronize_session=False)
     db.commit()
@@ -74,5 +87,7 @@ async def update_game(guid: uuid.UUID, updated_game_data: game_schemas.GameUpdat
         game_query.update(to_update, synchronize_session=False)
         db.commit()
         db.refresh(game)
+
+        await FastAPICache.clear()
 
     return game

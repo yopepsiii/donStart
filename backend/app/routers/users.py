@@ -1,32 +1,38 @@
 import uuid
+from typing import List
 
 from fastapi import Depends, HTTPException, APIRouter
+from fastapi_cache import FastAPICache
+from fastapi_cache.decorator import cache
 from sqlalchemy.orm import Session
 from starlette import status
 
 from .. import models, utils, oauth2
 from ..schemas import user_schemas
 from ..database import get_db
+from ..utils import validate, validate_list
 
 router = APIRouter(tags=["Users"], prefix="/users")
 
 
 # Получить всех пользователей
 @router.get("", response_model=list[user_schemas.UserOut])
+@cache(expire=60 * 60, namespace="users")
 async def get_users(db: Session = Depends(get_db)):
     users = db.query(models.User).all()
-    return users
+    return validate_list(values=users, class_type=user_schemas.UserOut)
 
 
 # Получить пользователя по ID
 @router.get("/{guid}", response_model=user_schemas.UserProfile)
+@cache(expire=60 * 60, namespace="user_by_guid")
 async def get_user(guid: uuid.UUID, db: Session = Depends(get_db)):
     user = db.query(models.User).filter(models.User.guid == guid).first()  # type: ignore
     if user is None:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND, detail=f"User with ID {guid} doesn't exist"
         )
-    return user
+    return validate(value=user, class_type=user_schemas.UserProfile)
 
 
 # Создать нового пользователя
@@ -39,6 +45,8 @@ async def create_user(user: user_schemas.UserCreate, db: Session = Depends(get_d
     db.add(new_user)
     db.commit()
     db.refresh(new_user)
+
+    await FastAPICache.clear()
 
     return new_user
 
@@ -75,5 +83,7 @@ async def update_user(
         user_query.update(update_data, synchronize_session=False)
         db.commit()
         db.refresh(user)
+
+        await FastAPICache.clear()
 
     return user

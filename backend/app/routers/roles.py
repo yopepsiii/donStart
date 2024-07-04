@@ -1,4 +1,5 @@
 from fastapi import APIRouter, Depends, HTTPException
+from fastapi_cache import FastAPICache
 from sqlalchemy.orm import Session
 from sqlalchemy.sql import roles
 from starlette import status
@@ -31,6 +32,8 @@ async def create_role(new_role_data: role_schemas.RoleCreate, db: Session = Depe
     db.commit()
     db.refresh(new_role)
 
+    await FastAPICache.clear()
+
     return new_role
 
 
@@ -41,6 +44,8 @@ async def delete_role(id: int, db: Session = Depends(get_db),
 
     db.delete(role)
     db.commit()
+
+    await FastAPICache.clear()
 
     return {"message": "Sucessfuly deleted"}
 
@@ -67,6 +72,8 @@ async def update_role(id: int, updated_role_data: role_schemas.RoleUpdate, db: S
         role_query.update(updated_data)
         db.commit()
         db.refresh(role)
+
+        await FastAPICache.clear()
 
     return role
 

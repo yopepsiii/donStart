@@ -36,14 +36,21 @@ class UserProfile(UserBase):
     roles: List["role_schemas.RoleUserOut"]
     created_games: List["game_schemas.GameUserProfile"]
 
+    class Config:
+        from_attributes = True
+
 
 class UserOut(UserBase):
     guid: uuid.UUID
     roles: List["role_schemas.RoleUserOut"]
 
+    class Config:
+        from_attributes = True
 
 class UserGamePreview(UserBase):
     guid: uuid.UUID
 
+    class Config:
+        from_attributes = True
 
 from ..schemas import role_schemas, game_schemas

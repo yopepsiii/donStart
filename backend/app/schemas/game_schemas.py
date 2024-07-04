@@ -29,15 +29,24 @@ class GameOut(GameBase):
     likes_count: int
     dislikes_count: int
 
+    class Config:
+        from_attributes = True
+
 
 class GameUserProfile(GameBase):
     guid: uuid.UUID
     likes_count: int
     dislikes_count: int
 
+    class Config:
+        from_attributes = True
+
 
 class GameFullInfo(GameOut):
     created_at: datetime.datetime
+
+    class Config:
+        from_attributes = True
 
     @field_validator('created_at')
     @classmethod

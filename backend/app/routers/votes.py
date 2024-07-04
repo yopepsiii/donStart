@@ -1,4 +1,5 @@
 from fastapi import APIRouter, Depends, HTTPException
+from fastapi_cache import FastAPICache
 from sqlalchemy.orm import Session
 from starlette import status
 
@@ -10,7 +11,6 @@ from ..schemas import vote_schemas
 router = APIRouter(prefix="/votes", tags=["Votes (Likes/Dislikes)"])
 
 
-# WIP
 @router.post('')
 async def create_vote(vote: vote_schemas.VoteCreate, current_user: models.User = Depends(get_current_user),
                       db: Session = Depends(get_db)):
@@ -29,11 +29,15 @@ async def create_vote(vote: vote_schemas.VoteCreate, current_user: models.User =
         db.commit()
         db.refresh(new_vote)
 
+        await FastAPICache.clear()
+
         return {"message": "Game liked" if new_vote.type == 1 else "Game disliked"}
     else:
         if vote.type == found_vote.type:
             db.delete(found_vote)
             db.commit()
+
+            await FastAPICache.clear()
 
             return {"message": "Vote has been deleted"}
 
@@ -41,5 +45,9 @@ async def create_vote(vote: vote_schemas.VoteCreate, current_user: models.User =
         db.commit()
         db.refresh(found_vote)
 
+        await FastAPICache.clear()
+
         return {"message": "Game liked" if found_vote.type == 1 else "Game disliked"}
+
+
 
