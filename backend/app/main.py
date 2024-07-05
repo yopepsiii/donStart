@@ -8,7 +8,7 @@ from starlette.requests import Request
 from starlette.responses import Response
 
 from .config import settings
-from .routers import users, games, admin, auth, roles, votes
+from .routers import users, games, admin, auth, roles, votes, favourite_games
 
 from fastapi.middleware.cors import CORSMiddleware
 
@@ -38,6 +38,7 @@ app.include_router(users.router)
 app.include_router(admin.router)
 app.include_router(roles.router)
 app.include_router(votes.router)
+app.include_router(favourite_games.router)
 
 
 @app.get('/')

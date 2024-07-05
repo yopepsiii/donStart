@@ -32,6 +32,7 @@ async def get_user(guid: uuid.UUID, db: Session = Depends(get_db)):
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND, detail=f"User with ID {guid} doesn't exist"
         )
+    print(user.favourite_games)
     return validate(value=user, class_type=user_schemas.UserProfile)
 
 
