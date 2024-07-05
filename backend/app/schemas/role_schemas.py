@@ -1,11 +1,11 @@
 import uuid
 from typing import Optional
 
-from pydantic import BaseModel
+from pydantic import BaseModel, constr
 
 
 class RoleBase(BaseModel):
-    name: str
+    name: constr(min_length=1, max_length=20)
     color: str
 
 
@@ -24,5 +24,5 @@ class RoleCreate(RoleBase):
 
 class RoleUpdate(BaseModel):
     user_guid: Optional[uuid.UUID] = None
-    name: Optional[str] = None
+    name: Optional[constr(min_length=1, max_length=20)] = None
     color: Optional[str] = None

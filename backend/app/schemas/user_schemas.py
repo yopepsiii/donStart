@@ -2,24 +2,24 @@ import datetime
 import uuid
 from typing import Optional, List
 
-from pydantic import BaseModel, EmailStr
+from pydantic import BaseModel, EmailStr, constr
 
 
 class UserBase(BaseModel):
-    username: str
+    username: constr(min_length=2, max_length=20)
     profile_picture: str
 
 
 class UserCreate(BaseModel):
-    username: str
-    profile_picture: Optional[str] = "some picture"  # пофиксить так как в бд тоже такое значение присваиается
-    password: str
+    username: constr(min_length=2, max_length=20)
+    profile_picture: Optional[str] = "user_profile_default"
+    password: constr(min_length=7)
     email: EmailStr
 
 
 class UserUpdate(BaseModel):
-    username: Optional[str] = None
-    password: Optional[str] = None
+    username: Optional[constr(min_length=2, max_length=20)] = None
+    password: Optional[constr(min_length=7)] = None
     email: Optional[EmailStr] = None
     profile_picture: Optional[str] = None
 
@@ -47,10 +47,12 @@ class UserOut(UserBase):
     class Config:
         from_attributes = True
 
+
 class UserGamePreview(UserBase):
     guid: uuid.UUID
 
     class Config:
         from_attributes = True
+
 
 from ..schemas import role_schemas, game_schemas

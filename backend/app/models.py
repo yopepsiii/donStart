@@ -16,7 +16,7 @@ class User(Base):
     email: Mapped[str] = mapped_column(unique=True, nullable=False)
     password: Mapped[str] = mapped_column(nullable=False)
     created_at: Mapped[datetime] = mapped_column(nullable=False, server_default=func.now())
-    profile_picture: Mapped[str] = mapped_column(server_default="some picture")
+    profile_picture: Mapped[str] = mapped_column(nullable=False)
 
     roles: Mapped[List["Role"]] = relationship(back_populates="user")
     created_games: Mapped[List["Game"]] = relationship(back_populates="creator")

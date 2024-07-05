@@ -12,7 +12,7 @@ from .routers import users, games, admin, auth, roles, votes
 
 from fastapi.middleware.cors import CORSMiddleware
 
-import redis.asyncio as redis
+import redis.asyncio as aioredis
 from redis.asyncio.connection import ConnectionPool
 from fastapi_cache import FastAPICache
 from fastapi_cache.coder import PickleCoder
@@ -48,7 +48,7 @@ async def index():
 @app.on_event("startup")
 async def startup():
     pool = ConnectionPool.from_url(url="redis://redis")
-    r = redis.Redis(connection_pool=pool)
+    r = aioredis.Redis(connection_pool=pool)
     FastAPICache.init(RedisBackend(r), prefix="donstart-cache", key_builder=api_key_builder)
 
 

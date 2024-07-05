@@ -2,14 +2,14 @@ import datetime
 import uuid
 from typing import Optional
 
-from pydantic import BaseModel, validator, field_validator
+from pydantic import BaseModel, validator, field_validator, constr
 
 from ..schemas import user_schemas
 
 
 class GameBase(BaseModel):
-    title: str
-    description: str
+    title: constr(min_length=1, max_length=130)
+    description: constr(max_length=15000)
     img: str
 
 
@@ -18,8 +18,8 @@ class GameCreate(GameBase):
 
 
 class GameUpdate(BaseModel):
-    title: Optional[str] = None
-    description: Optional[str] = None
+    title: Optional[constr(min_length=1, max_length=130)] = None
+    description: Optional[constr(max_length=15000)] = None
     img: Optional[str] = None
 
 
