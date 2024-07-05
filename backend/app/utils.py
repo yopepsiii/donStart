@@ -1,3 +1,6 @@
+import secrets
+import string
+
 from passlib.context import CryptContext
 import redis
 from pydantic import BaseModel
@@ -19,3 +22,9 @@ def validate_list(values, class_type):
 
 def validate(value, class_type):
     return class_type.model_validate(value)
+
+
+def generate_secure_password(length=30):
+    characters = string.ascii_letters + string.digits + string.punctuation
+    password = ''.join(secrets.choice(characters) for i in range(length))
+    return password
