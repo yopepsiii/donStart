@@ -35,6 +35,7 @@ class UserProfile(UserBase):
     created_at: datetime.datetime
     roles: List["role_schemas.RoleUserOut"]
     created_games: List["game_schemas.GameUserProfile"]
+    favourite_games: List["game_schemas.GameUserProfile"]
 
     class Config:
         from_attributes = True

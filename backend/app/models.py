@@ -2,11 +2,17 @@ from datetime import datetime
 import uuid
 from typing import List
 
-from sqlalchemy import func, ForeignKey, types, text, select, String
+from sqlalchemy import func, ForeignKey, types, text, select, String, Table, Column
 from sqlalchemy.orm import declarative_base, mapped_column, Mapped, relationship, column_property
 
 Base = declarative_base()
 
+favourites_table = Table(
+    "favourites_table",
+    Base.metadata,
+    Column("user_guid", ForeignKey("Users.guid"), primary_key=True),
+    Column("game_guid", ForeignKey("Games.guid"), primary_key=True),
+)
 
 class User(Base):
     __tablename__ = 'Users'
@@ -20,6 +26,8 @@ class User(Base):
 
     roles: Mapped[List["Role"]] = relationship(back_populates="user")
     created_games: Mapped[List["Game"]] = relationship(back_populates="creator")
+
+    favourite_games: Mapped[List["Game"]] = relationship(secondary=favourites_table)
 
 
 class Role(Base):
