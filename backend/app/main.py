@@ -18,15 +18,15 @@ from fastapi_cache import FastAPICache
 from fastapi_cache.coder import PickleCoder
 from fastapi_cache.backends.redis import RedisBackend
 
-app = FastAPI()
+app = FastAPI(openapi_prefix="/api/v1")
 app.add_middleware(middleware_class=SessionMiddleware, secret_key=settings.google_client_secret)
 
 origins = ['http://localhost:8000',
-           'http://frontend:4700']
+           'http://frontend:3000']
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],
+    allow_origins=origins,
     allow_credentials=True,
     allow_methods=["*"],  # Какие HTTP-методы разрешены для обработки
     allow_headers=["*"],  # Какие headers разрешены для обработки
