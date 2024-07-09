@@ -2,11 +2,12 @@ import hashlib
 import json
 import time
 import uuid
-from typing import List
+from typing import List, Optional
 
 from fastapi import APIRouter, Depends, HTTPException
 from fastapi_cache import FastAPICache
 from fastapi_cache.decorator import cache
+from sqlalchemy import func
 from sqlalchemy.orm import Session, session
 from starlette import status
 
@@ -23,9 +24,9 @@ router = APIRouter(prefix="/games", tags=["Games"])
 # Получить все игры
 
 @router.get("", response_model=List[game_schemas.GameOut])
-@cache(expire=60*60, namespace="games")
-async def get_games(db: Session = Depends(get_db)):
-    games = db.query(models.Game).all()
+@cache(expire=600, namespace="games")
+async def get_games(db: Session = Depends(get_db), limit: int = 10, skip: int = 0, search: Optional[str] = ""):
+    games = db.query(models.Game).filter(func.lower(models.Game.title + models.Game.description).contains(search.lower())).limit(limit).offset(skip).all()
     return validate_list(values=games, class_type=game_schemas.GameOut)
 
 

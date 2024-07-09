@@ -1,9 +1,10 @@
 import uuid
-from typing import List
+from typing import List, Optional
 
 from fastapi import Depends, HTTPException, APIRouter
 from fastapi_cache import FastAPICache
 from fastapi_cache.decorator import cache
+from sqlalchemy import func
 from sqlalchemy.orm import Session
 from starlette import status
 
@@ -18,10 +19,9 @@ router = APIRouter(tags=["Users"], prefix="/users")
 # Получить всех пользователей
 @router.get("", response_model=list[user_schemas.UserOut])
 @cache(expire=60 * 60, namespace="users")
-async def get_users(db: Session = Depends(get_db)):
-    users = db.query(models.User).all()
+async def get_users(db: Session = Depends(get_db), skip: int = 0, limit: int = 20, search: Optional[str] = ""):
+    users = db.query(models.User).filter((func.lower(models.User.username + models.User.email)).contains(search.lower())).limit(limit).offset(skip)
     return validate_list(values=users, class_type=user_schemas.UserOut)
-
 
 # Получить пользователя по ID
 @router.get("/{guid}", response_model=user_schemas.UserProfile)
