@@ -4,12 +4,13 @@ import time
 import uuid
 from typing import List, Optional
 
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, HTTPException, Response
 from fastapi_cache import FastAPICache
 from fastapi_cache.decorator import cache
 from sqlalchemy import func
 from sqlalchemy.orm import Session, session
 from starlette import status
+from starlette.responses import Response
 
 from .. import models
 from ..config import settings
@@ -25,8 +26,10 @@ router = APIRouter(prefix="/games", tags=["Games"])
 
 @router.get("", response_model=List[game_schemas.GameOut])
 @cache(expire=600, namespace="games")
-async def get_games(db: Session = Depends(get_db), limit: int = 10, skip: int = 0, search: Optional[str] = ""):
+async def get_games(response: Response, db: Session = Depends(get_db), limit: int = 10, skip: int = 0, search: Optional[str] = ""):
     games = db.query(models.Game).filter(func.lower(models.Game.title + models.Game.description).contains(search.lower())).limit(limit).offset(skip).all()
+    games_total_count = db.query(models.Game).filter(func.lower(models.Game.title + models.Game.description).contains(search.lower())).count()
+    response.headers["x-total-count"] = str(games_total_count)
     return validate_list(values=games, class_type=game_schemas.GameOut)
 
 

@@ -26,6 +26,7 @@ app.add_middleware(
     allow_credentials=True,
     allow_methods=["*"],  # Какие HTTP-методы разрешены для обработки
     allow_headers=["*"],  # Какие headers разрешены для обработки
+    expose_headers=["*"]
 )
 
 app.include_router(auth.router)
